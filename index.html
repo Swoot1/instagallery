@@ -1,0 +1,116 @@
+<html>
+<head>
+	<title>Lerbrotorp</title>
+	<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Prata' rel='stylesheet' type='text/css'>
+	<meta charset="utf-8"/>
+	<style type="text/css">
+	
+	.container{
+		width: 800px;
+		margin: 10px auto;		
+	}
+
+	.head-image-container{
+		width:640px;
+		float:right;
+	}
+	.head-image{
+		width: 640px;
+		height: 640px;	
+	}
+	.thumb-images-container{
+		width: 160px;
+		text-align:center;
+
+	}
+
+	.thumb-images-container img{		
+		margin-bottom: 13px;
+		margin-right: 13px;
+	}
+	.caption-container{
+		word-wrap: break-word;
+	}
+
+	.hiddenElement{
+		left:-10000;
+		position: absolute;
+	}
+	
+	h1{
+		font-family: 'Prata', serif;
+	}
+
+	p{
+		font-family: 'Alegreya Sans', sans-serif;
+		font-size: 20px;
+	}		
+
+	</style>
+</head>
+<body>
+	<div class="container">		
+		<h1>Lerbrotorp</h1>
+		<div class="head-image-container">						
+			<div class="caption-container"><p></p></div>
+		</div>
+		
+		<div class="thumb-images-container"></div>
+	</div>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script>
+	var divObject = {};
+
+
+	$.ajax({
+		url: 'https://api.instagram.com/v1/tags/lerbrotorp/media/recent?client_id=315bb9c0b4bf49a691efd1077d6ddee9',		
+		type: 'GET',
+		dataType: 'jsonp',
+		success:function(responseObj){
+			var imageData = [];
+			var firstImage = true;			
+			var divElement;
+
+			if(responseObj && responseObj.data){
+				imageData = responseObj.data.slice(0, 4);
+			}
+
+			imageData.forEach(function(imageObj){
+
+				divElement = $('<div/>');
+				divElement.append($('<img/>').prop('src', imageObj.images.standard_resolution.url).addClass('head-image'));
+				divElement.append($('<p/>').text(imageObj.caption.text));
+
+				if(firstImage){					
+					divElement.addClass('activeElement');
+					firstImage = false;
+				} else {
+					divElement.addClass('hiddenElement');
+				}
+
+				divObject[imageObj.id] = divElement;
+
+				$('.head-image-container').prepend(divElement);			
+
+				$('.thumb-images-container').append($('<img/>').prop('src', imageObj.images.thumbnail.url).data('id', imageObj.id));
+			});
+		}
+	});
+
+	$('.thumb-images-container').on('click', function(e){		
+		var $target = $(e.target);
+		var $nextImage;
+
+		if($target.is('img')){	
+
+			$('.activeElement').removeClass('activeElement').addClass('hiddenElement');
+
+			$nextImage = divObject[$target.data('id')];
+			$nextImage.removeClass('hiddenElement').addClass('activeElement');
+		}
+
+	});
+	</script>
+</body>
+</html>
